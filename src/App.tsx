@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { QuestionCard } from './components/QuestionCard'
-import { fetchQuestions, Difficulty, QuestionState } from './API'
+import { fetchQuestions, QuestionState } from './API'
 
 // Styled components import
 import { GlobalStyle, Wrapper } from './App.styles'
@@ -21,11 +21,12 @@ const App = () => {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(true);
 
+  // To set difficulty dynamically
+  const [difficulty, setDifficulty] = useState('easy')
+
+  const TOTAL_QUESTIONS = 3;
 
 
-  const TOTAL_QUESTIONS = 10;
-
-  console.log(questions);
 
 
 
@@ -33,7 +34,7 @@ const App = () => {
     setLoading(true);
     setGameOver(false);
 
-    const newQuestions = await fetchQuestions(TOTAL_QUESTIONS, Difficulty.EASY);
+    const newQuestions = await fetchQuestions(TOTAL_QUESTIONS, difficulty);
     setQuestions(newQuestions);
     setScore(0);
     setUserAnswers([]);
@@ -65,7 +66,7 @@ const App = () => {
     }
   }
 
-  const nextQuestion = async() => {
+  const nextQuestion = async () => {
     const nextQuestion = number + 1;
     if (nextQuestion === TOTAL_QUESTIONS) {
       setGameOver(true);
@@ -75,41 +76,56 @@ const App = () => {
     }
   }
 
+  const selectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => (
+    setDifficulty(e.target.value)
+  )
 
 
   return (
     <>
-    <GlobalStyle />
-    <Wrapper>
-      <h1>React Quiz</h1>
-      {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
-        <button className='start' onClick={startTrivia}>
-          Start
-        </button>
-      ) : null}
+      <GlobalStyle />
+      <Wrapper>
+        <h1>React Quiz</h1>
+        {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (<div>
+          <label style={{ color: "white" }} htmlFor="difficulty">Difficulty</label>
+          {' '}
+          <select onChange={selectHandler} id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select></div>) : null
+        }
 
-      { !gameOver ? (
-        <p className="score">Score: {score}</p>
-      ): null}
 
-      { loading && <p>Loading Questions...</p>}
-      {!gameOver && !loading && (
-        <QuestionCard
-          questionNr={number + 1}
-          totalQuestions={TOTAL_QUESTIONS}
-          question={questions[number].question}
-          answers={questions[number].answers}
-          userAnswer={userAnswers ? userAnswers[number] : undefined}
-          callback={checkAnswer}
-        />
-      )}
 
-      {!gameOver && !loading && userAnswers.length === number + 1 && number !== TOTAL_QUESTIONS - 1 ? (
-        <button className='next' onClick={nextQuestion} >
-          Next Question
-        </button>
-      ): null}
-    </Wrapper>
+        {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
+          <button className='start' onClick={startTrivia}>
+            Start
+          </button>
+        ) : null}
+
+        {!gameOver ? (
+          <p className="score">Score: {score}</p>
+        ) : null}
+
+        {loading && <p>Loading Questions...</p>}
+        {!gameOver && !loading && (
+          <QuestionCard
+            questionNr={number + 1}
+            totalQuestions={TOTAL_QUESTIONS}
+            question={questions[number].question}
+            answers={questions[number].answers}
+            userAnswer={userAnswers ? userAnswers[number] : undefined}
+            callback={checkAnswer}
+          />
+        )}
+
+        {!gameOver && !loading && userAnswers.length === number + 1 && number !== TOTAL_QUESTIONS - 1 ? (
+          <button className='next' onClick={nextQuestion} >
+            Next Question
+          </button>
+        ) : null}
+      </Wrapper>
     </>
   )
 }
