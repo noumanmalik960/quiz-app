@@ -24,7 +24,7 @@ const App = () => {
   // To set difficulty dynamically
   const [difficulty, setDifficulty] = useState('easy')
 
-  const TOTAL_QUESTIONS = 3;
+  const TOTAL_QUESTIONS = 10;
 
 
 
